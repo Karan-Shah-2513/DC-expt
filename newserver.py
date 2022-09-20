@@ -1,6 +1,7 @@
 from operator import truediv
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
+from datetime import datetime
 import pandas as pd
 # Restrict to a particular path.
 import json
@@ -34,7 +35,7 @@ with SimpleXMLRPCServer(('localhost', 8000),
         # def mul(self, x, y):
         #     return x * y
 
-        def calculateMyBill(self, unit):
+        def calculateMyBill(self, unit, due_date):
             if (unit <= 600):
                 pay = unit*3
                 charge = 50
@@ -52,15 +53,23 @@ with SimpleXMLRPCServer(('localhost', 8000),
                     (100*4.50) + (unit - 900)*5.00
                 charge = 75.00
             total = pay + charge
-            return total
+
+            fine = 0
+            today_date = datetime.now()
+            due_date_format = datetime.strptime(due_date, '%d/%m/%y %H:%M:%S')
+            if due_date_format < today_date:
+                fine = 0.2*total
+            return (total+fine)
             # print("Electricity bill is %.2f" % total)
 
         def findId(self, id):
             for i in data["dataset"]:
                 # print(i)
-                print(i['ID'])
+                # print(i['ID'])
                 if int(i['ID']) == int(id):
-                    return int(i['Units'])
+
+                    print("Due date: "+i['Due_Date'])
+                    return int(i['Units']), i['Due_Date'], i['Name']
             return 0
 
     server.register_instance(MyFuncs())

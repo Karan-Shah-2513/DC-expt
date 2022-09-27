@@ -1,7 +1,10 @@
 import xmlrpc.client
 import pandas as pd
 from datetime import datetime
-s = xmlrpc.client.ServerProxy('http://localhost:8000')
+s = xmlrpc.client.ServerProxy('http://localhost:8003')
+PORT = s.sendPORT()
+s = xmlrpc.client.ServerProxy(f'http://localhost:{PORT}')
+print("Coordinator is: ", PORT)
 # print(s.pow(2, 3))  # Returns 2**3 = 8
 # print(s.add(2, 3))  # Returns 5
 # print(s.mul(5, 2))  # Returns 5*2 = 10

@@ -1,4 +1,5 @@
 from operator import truediv
+# import xmlrpc.client
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 from datetime import datetime
@@ -15,8 +16,16 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
 
 
+priority = input("Enter priority: ")
 # Create server
-with SimpleXMLRPCServer(('localhost', 8000),
+PORT_NUMBER = 8000
+if priority == '1':
+    PORT_NUMBER = 8000
+if priority == '2':
+    PORT_NUMBER = 8001
+if priority == '3':
+    PORT_NUMBER = 8002
+with SimpleXMLRPCServer(('localhost', PORT_NUMBER),
                         requestHandler=RequestHandler) as server:
     server.register_introspection_functions()
 
@@ -34,6 +43,8 @@ with SimpleXMLRPCServer(('localhost', 8000),
     class MyFuncs:
         # def mul(self, x, y):
         #     return x * y
+        def amIworking(self):
+            return True
 
         def calculateMyBill(self, unit, due_date):
             if (unit <= 600):

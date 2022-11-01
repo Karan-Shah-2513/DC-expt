@@ -1,8 +1,8 @@
 import xmlrpc.client
 import pandas as pd
 from datetime import datetime
-s = xmlrpc.client.ServerProxy('http://localhost:8003')
-PORT = s.sendPORT()
+s0 = xmlrpc.client.ServerProxy('http://localhost:8003')
+PORT = s0.sendPORT()
 s = xmlrpc.client.ServerProxy(f'http://localhost:{PORT}')
 print("Coordinator is: ", PORT)
 # print(s.pow(2, 3))  # Returns 2**3 = 8
@@ -29,7 +29,9 @@ if units and due_date:
     pay_bill = input('Press 1 to pay bill or 2 to exit: ')
     if pay_bill == '1':
         today_date = datetime.now()
+        s.updateDueDate(id)
         print("Successfull payment on "+str(datetime.now())+"\nThank you!")
+
     else:
         print("Thankyou visit again")
 else:

@@ -1,15 +1,13 @@
 from operator import truediv
+from time import sleep
 import xmlrpc.client
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 from datetime import datetime
 import pandas as pd
+from dateutil.relativedelta import relativedelta
 # Restrict to a particular path.
 import json
-
-f = open('db.json')
-
-data = json.load(f)
 
 
 class RequestHandler(SimpleXMLRPCRequestHandler):
@@ -48,7 +46,7 @@ def isServerWorking(temp):
 # Register an instance; all the methods of the instance are
 # published as XML-RPC methods (in this case, just 'mul').
 with SimpleXMLRPCServer(('localhost', PORT_NUMBER),
-                        requestHandler=RequestHandler) as server:
+                        requestHandler=RequestHandler, allow_none=True) as server:
     server.register_introspection_functions()
 
     class MyFuncs:
@@ -93,6 +91,8 @@ with SimpleXMLRPCServer(('localhost', PORT_NUMBER),
             # print("Electricity bill is %.2f" % total)
 
         def findId(self, id):
+            f = open('db.json')
+            data = json.load(f)
             for i in data["dataset"]:
                 # print(i)
                 # print(i['ID'])
@@ -100,6 +100,28 @@ with SimpleXMLRPCServer(('localhost', PORT_NUMBER),
                     print("Due date: "+i['Due_Date'])
                     return int(i['Units']), i['Due_Date'], i['Name']
             return 0
+
+        def updateDueDate(self, id):
+            f = open('db.json')
+            data = json.load(f)
+            while data["lock"]:
+                print('Waiting for db')
+                sleep(3.0)
+            f.close()
+            f = open('db.json', "r+")
+            data = json.load(f)
+            data["lock"] = 1
+            for i in data["dataset"]:
+                # print(i)
+                # print(i['ID'])
+                if int(i['ID']) == int(id):
+                    i['Due Date'] = str(
+                        datetime.today() + relativedelta(months=+1))
+                    print('New Due Date:', i['Due Date'])
+                    break
+            sleep(3.0)
+            data["lock"] = 0
+            f.close()
 
     server.register_instance(MyFuncs())
 
